@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Api::V2::Ebooks", type: :request do
+RSpec.describe "V2::Ebooks", type: :request do
   let!(:ebooks) do
     3.times.map do
       Ebook.create!(
@@ -16,12 +16,12 @@ RSpec.describe "Api::V2::Ebooks", type: :request do
     end
   end
 
-  describe "GET /api/v2/ebooks/:id" do
+  describe "GET /v2/ebooks/:id" do
     context "when ebook exists" do
       let(:ebook) { ebooks.first }
 
       it "returns a ebook correctly" do
-        get api_v2_ebook_path(ebook)
+        get v2_ebook_path(ebook)
 
         expect(response).to have_http_status :ok
         expect(json_response["publisher"]).to eq(ebook.publisher)
@@ -29,7 +29,7 @@ RSpec.describe "Api::V2::Ebooks", type: :request do
     end
   end
 
-  describe "POST /api/v2/ebooks" do
+  describe "POST /v2/ebooks" do
     let(:attributes) do
       {
         ebook: {
@@ -45,7 +45,7 @@ RSpec.describe "Api::V2::Ebooks", type: :request do
 
     context "when the ebook can be created" do
       it "creates a new ebook" do
-        post api_v2_ebooks_path, params: attributes
+        post v2_ebooks_path, params: attributes
 
         expect(response).to have_http_status :created
         expect(json_response["publisher"]).to be_present

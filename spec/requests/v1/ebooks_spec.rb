@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Api::V1::Ebooks", type: :request do
+RSpec.describe "V1::Ebooks", type: :request do
   let!(:ebooks) do
     3.times.map do
       Ebook.create!(
@@ -15,21 +15,21 @@ RSpec.describe "Api::V1::Ebooks", type: :request do
     end
   end
 
-  describe "GET /api/v1/ebooks" do
+  describe "GET /v1/ebooks" do
     it "returns a list of ebooks correctly" do
-      get api_v1_ebooks_path
+      get v1_ebooks_path
 
       expect(response).to have_http_status(:ok)
       expect(json_response.size).to eq(3)
     end
   end
 
-  describe "GET /api/v1/ebooks/:id" do
+  describe "GET /v1/ebooks/:id" do
     context "when ebook exists" do
       let(:ebook) { ebooks.first }
 
       it "returns a ebook correctly" do
-        get api_v1_ebook_path(ebook)
+        get v1_ebook_path(ebook)
 
         expect(response).to have_http_status :ok
         expect(json_response["id"]).to eq(ebook.id)
@@ -41,9 +41,9 @@ RSpec.describe "Api::V1::Ebooks", type: :request do
       end
     end
 
-    context "when the account does not exist" do
+    context "when the ebook does not exist" do
       it "show error message" do
-        get api_v1_ebook_path(111)
+        get v1_ebook_path(111)
 
         expect(response).to have_http_status :not_found
         expect(json_response["error"]).to eq("Ebook not found")
@@ -51,7 +51,7 @@ RSpec.describe "Api::V1::Ebooks", type: :request do
     end
   end
 
-  describe "POST /api/v1/ebooks" do
+  describe "POST /v1/ebooks" do
     let(:attributes) do
       {
         ebook: {
@@ -66,7 +66,7 @@ RSpec.describe "Api::V1::Ebooks", type: :request do
 
     context "when the ebook can be created" do
       it "creates a new ebook" do
-        post api_v1_ebooks_path, params: attributes
+        post v1_ebooks_path, params: attributes
 
         expect(response).to have_http_status :created
         expect(json_response["id"]).to be_present
@@ -84,7 +84,7 @@ RSpec.describe "Api::V1::Ebooks", type: :request do
       end
 
       it "does not create a new ebook" do
-        post api_v1_ebooks_path, params: attributes
+        post v1_ebooks_path, params: attributes
 
         expect(response).to have_http_status :unprocessable_entity
       end
