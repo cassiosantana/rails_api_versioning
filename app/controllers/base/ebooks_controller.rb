@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module Api
-  class BaseEbooksController < ApplicationController
+module Base
+  class EbooksController < ApplicationController
     def index
       @ebooks = Ebook.all
       render json: @ebooks
