@@ -21,9 +21,9 @@ module Ebooks
     def select_serializer
       case @controller_name
       when "V1::EbooksController"
-        V1::EbookSerializer
+        V1::EbooksSerializer
       when "V2::EbooksController"
-        V2::EbookSerializer
+        V2::EbooksSerializer
       else
         raise "Serializer not found for controller_name: #{@controller_name}"
       end
