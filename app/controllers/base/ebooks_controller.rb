@@ -28,7 +28,7 @@ module Base
     private
 
     def ebook_params
-      params.require(:ebook).permit(:title, :description, :author, :genre, :isbn)
+      params.require(:data).require(:attributes).permit(:title, :description, :author, :genre, :isbn)
     end
 
     def serialize(resource)
