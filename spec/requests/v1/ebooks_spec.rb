@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe "V1::Ebooks", type: :request do
-  let!(:ebooks) do
+  before do
     3.times.map do
       Ebook.create!(
         title: FFaker::Book.title,
@@ -20,24 +20,24 @@ RSpec.describe "V1::Ebooks", type: :request do
       get v1_ebooks_path
 
       expect(response).to have_http_status(:ok)
-      expect(json_response.size).to eq(3)
+      expect(json_response["data"].size).to eq(3)
     end
   end
 
   describe "GET /v1/ebooks/:id" do
     context "when ebook exists" do
-      let(:ebook) { ebooks.first }
+      let(:ebook) { Ebook.first }
 
       it "returns a ebook correctly" do
         get v1_ebook_path(ebook)
 
         expect(response).to have_http_status :ok
-        expect(json_response["id"]).to eq(ebook.id)
-        expect(json_response["title"]).to eq(ebook.title)
-        expect(json_response["description"]).to eq(ebook.description)
-        expect(json_response["author"]).to eq(ebook.author)
-        expect(json_response["genre"]).to eq(ebook.genre)
-        expect(json_response["isbn"]).to eq(ebook.isbn)
+        expect(json_response["data"]["id"]).to eq(ebook.id.to_s)
+        expect(json_response["data"]["type"]).to eq("ebooks")
+        expect(json_response["data"]["attributes"]["description"]).to eq(ebook.description)
+        expect(json_response["data"]["attributes"]["author"]).to eq(ebook.author)
+        expect(json_response["data"]["attributes"]["genre"]).to eq(ebook.genre)
+        expect(json_response["data"]["attributes"]["isbn"]).to eq(ebook.isbn)
       end
     end
 
@@ -54,12 +54,15 @@ RSpec.describe "V1::Ebooks", type: :request do
   describe "POST /v1/ebooks" do
     let(:attributes) do
       {
-        ebook: {
-          title: FFaker::Book.title,
-          author: FFaker::Book.author,
-          genre: FFaker::Book.genre,
-          isbn: FFaker::Book.isbn,
-          description: FFaker::Lorem.paragraph
+        data: {
+          type: :ebooks,
+          attributes: {
+            title: FFaker::Book.title,
+            author: FFaker::Book.author,
+            genre: FFaker::Book.genre,
+            isbn: FFaker::Book.isbn,
+            description: FFaker::Lorem.paragraph
+          }
         }
       }
     end
@@ -69,12 +72,12 @@ RSpec.describe "V1::Ebooks", type: :request do
         post v1_ebooks_path, params: attributes
 
         expect(response).to have_http_status :created
-        expect(json_response["id"]).to be_present
-        expect(json_response["title"]).to be_present
-        expect(json_response["description"]).to be_present
-        expect(json_response["author"]).to be_present
-        expect(json_response["genre"]).to be_present
-        expect(json_response["isbn"]).to be_present
+        expect(json_response["data"]["id"]).to be_present
+        expect(json_response["data"]["type"]).to eq("ebooks")
+        expect(json_response["data"]["attributes"]["description"]).to be_present
+        expect(json_response["data"]["attributes"]["author"]).to be_present
+        expect(json_response["data"]["attributes"]["genre"]).to be_present
+        expect(json_response["data"]["attributes"]["isbn"]).to be_present
       end
     end
 

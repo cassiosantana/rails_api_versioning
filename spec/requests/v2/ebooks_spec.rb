@@ -24,7 +24,7 @@ RSpec.describe "V2::Ebooks", type: :request do
         get v2_ebook_path(ebook)
 
         expect(response).to have_http_status :ok
-        expect(json_response["publisher"]).to eq(ebook.publisher)
+        expect(json_response["data"]["attributes"]["publisher"]).to eq(ebook.publisher)
       end
     end
   end
@@ -32,13 +32,16 @@ RSpec.describe "V2::Ebooks", type: :request do
   describe "POST /v2/ebooks" do
     let(:attributes) do
       {
-        ebook: {
-          title: FFaker::Book.title,
-          author: FFaker::Book.author,
-          genre: FFaker::Book.genre,
-          isbn: FFaker::Book.isbn,
-          description: FFaker::Lorem.paragraph,
-          publisher: FFaker::Company.name
+        data: {
+          type: :ebooks,
+          attributes: {
+            title: FFaker::Book.title,
+            author: FFaker::Book.author,
+            genre: FFaker::Book.genre,
+            isbn: FFaker::Book.isbn,
+            description: FFaker::Lorem.paragraph,
+            publisher: FFaker::Company.name
+          }
         }
       }
     end
@@ -48,7 +51,7 @@ RSpec.describe "V2::Ebooks", type: :request do
         post v2_ebooks_path, params: attributes
 
         expect(response).to have_http_status :created
-        expect(json_response["publisher"]).to be_present
+        expect(json_response["data"]["attributes"]["publisher"]).to be_present
       end
     end
   end
