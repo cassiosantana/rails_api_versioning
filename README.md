@@ -1,62 +1,194 @@
-# API Versionada para Produtos
+# REST API versioning
+> "APIs only need to be up-versioned when a breaking change is made."
 
-## Objetivo
-Demonstrar a implementação de versionamento de API em um sistema de gerenciamento de ebooks. O objetivo é gerenciar mudanças na API sem quebrar clientes existentes, permitindo a coexistência de múltiplas versões da API.
+Fonte: [RestfulAPI](https://restfulapi.net/versioning/)
 
-## Por Que Versionar a API?
-O versionamento de API é uma estratégia essencial para gerenciar mudanças e evoluções no sistema sem interromper o funcionamento dos clientes que dependem da versão atual da API. Permite a implementação de novas funcionalidades e alterações de forma incremental, garantindo que as atualizações não quebrem a integração com clientes existentes.
+## Visão Geral
+Alterar o número da versão de uma API deve ser o resultado de necessidades drásticas. Adicionar endpoints ou novos parâmetros
+não devem ser o motivo de alteração de numero de versão, mas é valido e útil rastrear versões para dar suporte a clientes
+que estejam enfrentando problemas de API.
 
-## Estrutura de Diretórios
-```text
-app/
-├── controllers/
-│   ├── api/
-│   │   ├── v1/
-│   │   │   └── ebooks_controller.rb
-│   │   ├── v2/
-│   │   │   └── ebooks_controller.rb
-│   │   └── v3/
-│   │       └── ebooks_controller.rb
-├── models/
-│   └── ebook.rb
-config/
-└── routes.rb
+Apesar da indicação ser explícita quanto a necessidade do versionamento de APIs o objetivo aqui é simular a necessidade 
+de mudanças sem quebrar clientes existentes, permitindo a coexistência de múltiplas versões da API.
+
+## Estrutura da API
+
+### Códigos de Status HTTP
+- **200 OK:** A solicitação foi bem-sucedida.
+- **201 Created:** Um novo recurso foi criado com sucesso.
+- **404 Not Found:** O recurso solicitado não foi encontrado.
+- **500 Internal Server Error:** Ocorreu um erro inesperado no servidor.
+
+### Serialização
+
+A serialização das respostas é gerenciada por um serviço específico. As respostas seguem o formato JSON API, garantindo que os dados estejam estruturados corretamente com os seguintes campos:
+
+- **id:** Identificador do recurso
+- **type:** Tipo do recurso
+- **attributes:** Atributos do recurso , incluindo `title`, `description`, `author`, `genre`, `isbn`, `created_at`, `updated_at` e, na versão 2, `publisher`.
+
+**Exemplo de Formato JSON API:**
+
+```json
+{
+  "data": {
+    "id": "1",
+    "type": "ebooks",
+    "attributes": {
+      "title": "O Alquimista",
+      "description": "Uma fábula sobre seguir seus sonhos",
+      "author": "Paulo Coelho",
+      "genre": "Ficção",
+      "isbn": "978-0061122415",
+      "publisher": "HarperOne", // Disponível na versão 2
+      "created_at": "2024-07-31T12:59:10Z",
+      "updated_at": "2024-07-31T12:59:10Z"
+      
+    }
+  }
+}
 ```
-- **`app/controllers/api/v1/ebooks_controller.rb`**: Controlador para a versão 1 da API.
-- **`app/controllers/api/v2/ebooks_controller.rb`**: Controlador para a versão 2 da API, onde novos atributos podem ser adicionados.
-- **`app/controllers/api/v3/ebooks_controller.rb`**: Controlador para a versão 3 da API, onde a estrutura de resposta pode ser alterada e atributos renomeados.
-
-## Versões da API
 
 ### Versão 1 (v1)
+Na versão 1 da API, a entidade eBook possui os seguintes atributos:
+- **title:** Título do eBook
+- **description:** Descrição do eBook
+- **author:** Autor do eBook
+- **genre:** Gênero do eBook
+- **isbn:** Código ISBN do eBook
+- **created_at:** Data de criação do registro
+- **updated_at:** Data de atualização do registro 
 
-**Descrição:**
+### Exemplo de Requisição e Resposta
 
-A versão inicial da API expõe endpoints para listar, visualizar e criar ebooks com os seguintes atributos: `title`, `description`, `author`, `genre` e `isbn`.
+**GET /v1/ebooks**
 
-**Potenciais Problemas:**
+Resposta:
+```json
+{
+  "data": [
+    {
+      "type": "ebooks",
+      "id": "1",
+      "attributes": {
+        "title": "O Alquimista",
+        "description": "Uma fábula sobre seguir seus sonhos",
+        "author": "Paulo Coelho",
+        "genre": "Ficção",
+        "isbn": "978-0061122415",
+        "created_at": "2024-07-31T12:59:10Z",
+        "updated_at": "2024-07-31T12:59:10Z"
+      }
+    }
+  ]
+}
+```
 
-- **Mudanças não Disruptivas:** Se você precisar adicionar um novo atributo à resposta da API, como a editora do livro, não deve haver problemas significativos, pois a estrutura básica da resposta permanece a mesma.
-- **Mudanças Disruptivas:** Se você renomear um atributo existente, como `isbn` para `isbn_10`, isso causará problemas, pois os clientes existentes ainda esperam o atributo antigo e não conseguirão processar o novo.
+**POST /v1/ebooks**
+
+Requisição:
+```json
+{
+  "data": {
+    "type": "ebooks",
+    "attributes": {
+      "title": "O Alquimista",
+      "description": "Uma fábula sobre seguir seus sonhos",
+      "author": "Paulo Coelho",
+      "genre": "Ficção",
+      "isbn": "978-0061122415"
+    }
+  }
+}
+```
+
+Resposta:
+```json
+{
+  "data": {
+    "type": "ebooks",
+    "id": "1",
+    "attributes": {
+      "title": "O Alquimista",
+      "description": "Uma fábula sobre seguir seus sonhos",
+      "author": "Paulo Coelho",
+      "genre": "Ficção",
+      "isbn": "978-0061122415",
+      "created_at": "2024-07-31T12:59:10Z",
+      "updated_at": "2024-07-31T12:59:10Z"
+    }
+  }
+}
+```
 
 ### Versão 2 (v2)
+Para atender à necessidade de incluir o atributo `publisher` nos eBooks, foi criada a versão 2 da API. 
+Os clientes da versão anterior não necessitam desse novo atributo e precisam continuar utilizando a versão antiga sem 
+qualquer alteração nas respostas.
 
-**Descrição:**
+Assim, existe uma pequena diferença na versão 2 que é apenas incluir este atributo nas respostas e requisições para 
+criação de novos registros:
 
-Na versão 2, novos atributos podem ser adicionados sem remover ou renomear os existentes. Por exemplo, se você adicionar um atributo `publisher`, os clientes da versão 1 ainda funcionarão como antes, enquanto novos clientes podem utilizar o atributo adicional.
+**GET /v2/ebooks**
 
-**Problemas Resolvidos:**
+Resposta:
+```json
+{
+  "data": [
+    {
+      "type": "ebooks",
+      "id": "1",
+      "attributes": {
+        "title": "O Alquimista",
+        "description": "Uma fábula sobre seguir seus sonhos",
+        "author": "Paulo Coelho",
+        "genre": "Ficção",
+        "isbn": "978-0061122415",
+        "publisher": "HarperOne",
+        "created_at": "2024-07-31T12:59:10Z",
+        "updated_at": "2024-07-31T12:59:10Z"
+      }
+    }
+  ]
+}
 
-- **Adicionar Novos Atributos:** O cliente que utiliza a versão 1 da API não será afetado, pois o novo atributo será opcional e não alterará o funcionamento das operações existentes.
-- **Novo Endpoint:** É criada uma nova versão da API (v2) para incluir o novo atributo sem interferir na versão anterior.
+```
 
-### Versão 3 (v3)
+**POST /v2/ebooks**
 
-**Descrição:**
+Requisição:
+```json
+{
+  "data": {
+    "type": "ebooks",
+    "attributes": {
+      "title": "O Alquimista",
+      "description": "Uma fábula sobre seguir seus sonhos",
+      "author": "Paulo Coelho",
+      "genre": "Ficção",
+      "isbn": "978-0061122415",
+      "publisher": "HarperOne"
+    }
+  }
+}
+```
 
-Na versão 3, são introduzidas mudanças disruptivas, como renomear atributos e alterar a estrutura de resposta. Por exemplo, se o atributo `isbn` for renomeado para `isbn_10` e for adicionada a paginação à resposta da lista de ebooks, isso representa uma mudança significativa.
-
-**Problemas Resolvidos:**
-
-- **Renomear ou Remover Atributos:** A versão 1 e 2 continuarão a funcionar com o atributo antigo, enquanto a versão 3 utiliza o novo nome. Assim, clientes antigos não precisam ser atualizados imediatamente, mas novos clientes devem usar a nova versão.
-- **Alterar Estrutura de Resposta:** Com a introdução de paginação e a alteração na estrutura da resposta, a versão 3 oferece uma estrutura de dados mais rica e adaptada às novas necessidades, enquanto mantém a versão 1 e 2 intacta para compatibilidade.
+Resposta:
+```json
+{
+  "data": {
+    "type": "ebooks",
+    "id": "1",
+    "attributes": {
+      "title": "O Alquimista",
+      "description": "Uma fábula sobre seguir seus sonhos",
+      "author": "Paulo Coelho",
+      "genre": "Ficção",
+      "isbn": "978-0061122415",
+      "publisher": "HarperOne",
+      "created_at": "2024-07-31T12:59:10Z",
+      "updated_at": "2024-07-31T12:59:10Z"
+    }
+  }
+}
+```
