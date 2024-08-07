@@ -1,14 +1,11 @@
 # frozen_string_literal: true
 
 module Ebooks
-  class Serialize
-    def self.call(controller_name, resource)
-      new(controller_name, resource).call
-    end
-
+  class ResponseSerializer < Ebooks::Base
     def initialize(controller_name, resource)
       @controller_name = controller_name
       @resource = resource
+      super
     end
 
     def call
