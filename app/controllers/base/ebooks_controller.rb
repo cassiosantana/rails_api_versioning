@@ -21,7 +21,7 @@ module Base
         render json: serialize_response(@ebook),
                status: :created
       else
-        render json: @ebook.errors, status: :unprocessable_entity
+        render json: unprocessable_entity_error_serialize(@ebook.errors), status: :unprocessable_entity
       end
     end
 
@@ -37,6 +37,10 @@ module Base
 
     def not_found_error_serialize
       Ebooks::NotFoundErrorSerializer.call
+    end
+
+    def unprocessable_entity_error_serialize(errors)
+      Ebooks::ValidationErrorsSerializer.call(errors)
     end
   end
 end
