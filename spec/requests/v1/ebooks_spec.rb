@@ -34,10 +34,13 @@ RSpec.describe "V1::Ebooks", type: :request do
         expect(response).to have_http_status :ok
         expect(json_response["data"]["id"]).to eq(ebook.id.to_s)
         expect(json_response["data"]["type"]).to eq("ebooks")
+        expect(json_response["data"]["attributes"]["title"]).to eq(ebook.title)
         expect(json_response["data"]["attributes"]["description"]).to eq(ebook.description)
         expect(json_response["data"]["attributes"]["author"]).to eq(ebook.author)
         expect(json_response["data"]["attributes"]["genre"]).to eq(ebook.genre)
         expect(json_response["data"]["attributes"]["isbn"]).to eq(ebook.isbn)
+        expect(json_response["data"]["attributes"]["created_at"].to_date).to eq(ebook.created_at.to_date)
+        expect(json_response["data"]["attributes"]["updated_at"].to_date).to eq(ebook.updated_at.to_date)
       end
     end
 
@@ -74,10 +77,13 @@ RSpec.describe "V1::Ebooks", type: :request do
         expect(response).to have_http_status :created
         expect(json_response["data"]["id"]).to be_present
         expect(json_response["data"]["type"]).to eq("ebooks")
+        expect(json_response["data"]["attributes"]["title"]).to be_present
         expect(json_response["data"]["attributes"]["description"]).to be_present
         expect(json_response["data"]["attributes"]["author"]).to be_present
         expect(json_response["data"]["attributes"]["genre"]).to be_present
         expect(json_response["data"]["attributes"]["isbn"]).to be_present
+        expect(json_response["data"]["attributes"]["created_at"]).to be_present
+        expect(json_response["data"]["attributes"]["updated_at"]).to be_present
       end
     end
 
