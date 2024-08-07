@@ -11,7 +11,7 @@ module Base
       @ebook = Ebook.find(params[:id])
       render json: serialize_response(@ebook)
     rescue ActiveRecord::RecordNotFound
-      render json: { error: "Ebook not found" }, status: :not_found
+      render json: not_found_error_serialize, status: :not_found
     end
 
     def create
@@ -33,6 +33,10 @@ module Base
 
     def serialize_response(resource)
       Ebooks::ResponseSerializer.call(self.class.name, resource)
+    end
+
+    def not_found_error_serialize
+      Ebooks::NotFoundErrorSerializer.call
     end
   end
 end
