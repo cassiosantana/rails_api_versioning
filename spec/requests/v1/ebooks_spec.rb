@@ -32,13 +32,19 @@ RSpec.describe "V1::Ebooks", type: :request do
         get v1_ebook_path(ebook)
 
         expect(response).to have_http_status :ok
-        expect(json_response["data"]["id"]).to eq(ebook.id.to_s)
-        expect(json_response["data"]["type"]).to eq("ebooks")
-        expect(json_response["data"]["attributes"]["title"]).to eq(ebook.title)
-        expect(json_response["data"]["attributes"]["description"]).to eq(ebook.description)
-        expect(json_response["data"]["attributes"]["author"]).to eq(ebook.author)
-        expect(json_response["data"]["attributes"]["genre"]).to eq(ebook.genre)
-        expect(json_response["data"]["attributes"]["isbn"]).to eq(ebook.isbn)
+        expect(json_response["data"]).to include(
+          "id" => ebook.id.to_s,
+          "type" => "ebooks",
+          "attributes" => hash_including(
+            "title" => ebook.title,
+            "author" => ebook.author,
+            "description" => ebook.description,
+            "genre" => ebook.genre,
+            "isbn" => ebook.isbn,
+            "created_at" => be_present,
+            "updated_at" => be_present
+          )
+        )
         expect(json_response["data"]["attributes"]["created_at"].to_date).to eq(ebook.created_at.to_date)
         expect(json_response["data"]["attributes"]["updated_at"].to_date).to eq(ebook.updated_at.to_date)
       end
@@ -48,11 +54,16 @@ RSpec.describe "V1::Ebooks", type: :request do
       it "show error message" do
         get v1_ebook_path(111)
 
-        expect(response).to have_http_status :not_found
-        expect(json_response["errors"][0]["status"]).to eq("404")
-        expect(json_response["errors"][0]["source"]["pointer"]).to eq("/data/id")
-        expect(json_response["errors"][0]["title"]).to eq("Not Found")
-        expect(json_response["errors"][0]["detail"]).to eq("The Ebook requested is not available.")
+        expect(response).to have_http_status(:not_found)
+
+        expect(json_response["errors"]).to include(
+          hash_including(
+            "status" => "404",
+            "source" => { "pointer" => "/data/id" },
+            "title" => "Not Found",
+            "detail" => "The Ebook requested is not available."
+          )
+        )
       end
     end
   end
@@ -92,15 +103,19 @@ RSpec.describe "V1::Ebooks", type: :request do
         post v1_ebooks_path, params: valid_attributes
 
         expect(response).to have_http_status :created
-        expect(json_response["data"]["id"]).to be_present
-        expect(json_response["data"]["type"]).to eq("ebooks")
-        expect(json_response["data"]["attributes"]["title"]).to be_present
-        expect(json_response["data"]["attributes"]["description"]).to be_present
-        expect(json_response["data"]["attributes"]["author"]).to be_present
-        expect(json_response["data"]["attributes"]["genre"]).to be_present
-        expect(json_response["data"]["attributes"]["isbn"]).to be_present
-        expect(json_response["data"]["attributes"]["created_at"]).to be_present
-        expect(json_response["data"]["attributes"]["updated_at"]).to be_present
+        expect(json_response["data"]).to include(
+          "id" => be_present,
+          "type" => "ebooks",
+          "attributes" => hash_including(
+            "title" => be_present,
+            "description" => be_present,
+            "author" => be_present,
+            "genre" => be_present,
+            "isbn" => be_present,
+            "created_at" => be_present,
+            "updated_at" => be_present
+          )
+        )
       end
     end
 
@@ -108,16 +123,22 @@ RSpec.describe "V1::Ebooks", type: :request do
       it "does not create a new ebook" do
         post v1_ebooks_path, params: invalid_attributes
 
-        expect(response).to have_http_status :unprocessable_entity
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(json_response["errors"].size).to eq(2)
-        expect(json_response["errors"][0]["status"]).to eq("422")
-        expect(json_response["errors"][0]["source"]["pointer"]).to eq("/data/attributes/title")
-        expect(json_response["errors"][0]["title"]).to eq("Invalid Attribute")
-        expect(json_response["errors"][0]["detail"]).to eq("can't be blank")
-        expect(json_response["errors"][1]["status"]).to eq("422")
-        expect(json_response["errors"][1]["source"]["pointer"]).to eq("/data/attributes/title")
-        expect(json_response["errors"][1]["title"]).to eq("Invalid Attribute")
-        expect(json_response["errors"][1]["detail"]).to eq("is too short (minimum is 5 characters)")
+        expect(json_response["errors"]).to include(
+          hash_including(
+            "status" => "422",
+            "source" => { "pointer" => "/data/attributes/title" },
+            "title" => "Invalid Attribute",
+            "detail" => "can't be blank"
+          ),
+          hash_including(
+            "status" => "422",
+            "source" => { "pointer" => "/data/attributes/title" },
+            "title" => "Invalid Attribute",
+            "detail" => "is too short (minimum is 5 characters)"
+          )
+        )
       end
     end
   end
