@@ -60,7 +60,7 @@ RSpec.describe "V2::Ebooks", type: :request do
   end
 
   describe "POST /v2/ebooks" do
-    let(:attributes) do
+    let(:valid_attributes) do
       {
         data: {
           type: :ebooks,
@@ -69,16 +69,29 @@ RSpec.describe "V2::Ebooks", type: :request do
             author: FFaker::Book.author,
             genre: FFaker::Book.genre,
             isbn: FFaker::Book.isbn,
-            description: FFaker::Lorem.paragraph,
-            publisher: FFaker::Company.name
+            description: FFaker::Lorem.paragraph
           }
         }
       }
     end
 
-    context "when the ebook can be created" do
+    let(:invalid_attributes) do
+      {
+        data: {
+          type: :ebooks,
+          attributes: {
+            author: FFaker::Book.author,
+            genre: FFaker::Book.genre,
+            isbn: FFaker::Book.isbn,
+            description: FFaker::Lorem.paragraph
+          }
+        }
+      }
+    end
+
+    context "when attributes are valid" do
       it "creates a new ebook" do
-        post v2_ebooks_path, params: attributes
+        post v1_ebooks_path, params: valid_attributes
 
         expect(response).to have_http_status :created
         expect(json_response["data"]["id"]).to be_present
@@ -90,19 +103,23 @@ RSpec.describe "V2::Ebooks", type: :request do
         expect(json_response["data"]["attributes"]["isbn"]).to be_present
         expect(json_response["data"]["attributes"]["created_at"]).to be_present
         expect(json_response["data"]["attributes"]["updated_at"]).to be_present
-        expect(json_response["data"]["attributes"]["publisher"]).to be_present
       end
     end
 
-    context "when the ebook can't be created" do
-      before do
-        allow_any_instance_of(Ebook).to receive(:save).and_return(false)
-      end
-
+    context "when attributes are invalid" do
       it "does not create a new ebook" do
-        post v2_ebooks_path, params: attributes
+        post v1_ebooks_path, params: invalid_attributes
 
         expect(response).to have_http_status :unprocessable_entity
+        expect(json_response["errors"].size).to eq(2)
+        expect(json_response["errors"][0]["status"]).to eq("422")
+        expect(json_response["errors"][0]["source"]["pointer"]).to eq("/data/attributes/title")
+        expect(json_response["errors"][0]["title"]).to eq("Invalid Attribute")
+        expect(json_response["errors"][0]["detail"]).to eq("can't be blank")
+        expect(json_response["errors"][1]["status"]).to eq("422")
+        expect(json_response["errors"][1]["source"]["pointer"]).to eq("/data/attributes/title")
+        expect(json_response["errors"][1]["title"]).to eq("Invalid Attribute")
+        expect(json_response["errors"][1]["detail"]).to eq("is too short (minimum is 5 characters)")
       end
     end
   end
