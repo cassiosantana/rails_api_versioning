@@ -5,7 +5,7 @@ module V2
     private
 
     def ebook_params
-      super.merge(params.require(:ebook).permit(:publisher))
+      super.merge(params.require(:data).require(:attributes).permit(:publisher))
     end
   end
 end

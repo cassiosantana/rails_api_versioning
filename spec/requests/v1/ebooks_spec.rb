@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe "V1::Ebooks", type: :request do
-  let!(:ebooks) do
+  before do
     3.times.map do
       Ebook.create!(
         title: FFaker::Book.title,
@@ -20,24 +20,27 @@ RSpec.describe "V1::Ebooks", type: :request do
       get v1_ebooks_path
 
       expect(response).to have_http_status(:ok)
-      expect(json_response.size).to eq(3)
+      expect(json_response["data"].size).to eq(3)
     end
   end
 
   describe "GET /v1/ebooks/:id" do
     context "when ebook exists" do
-      let(:ebook) { ebooks.first }
+      let(:ebook) { Ebook.first }
 
       it "returns a ebook correctly" do
         get v1_ebook_path(ebook)
 
         expect(response).to have_http_status :ok
-        expect(json_response["id"]).to eq(ebook.id)
-        expect(json_response["title"]).to eq(ebook.title)
-        expect(json_response["description"]).to eq(ebook.description)
-        expect(json_response["author"]).to eq(ebook.author)
-        expect(json_response["genre"]).to eq(ebook.genre)
-        expect(json_response["isbn"]).to eq(ebook.isbn)
+        expect(json_response["data"]["id"]).to eq(ebook.id.to_s)
+        expect(json_response["data"]["type"]).to eq("ebooks")
+        expect(json_response["data"]["attributes"]["title"]).to eq(ebook.title)
+        expect(json_response["data"]["attributes"]["description"]).to eq(ebook.description)
+        expect(json_response["data"]["attributes"]["author"]).to eq(ebook.author)
+        expect(json_response["data"]["attributes"]["genre"]).to eq(ebook.genre)
+        expect(json_response["data"]["attributes"]["isbn"]).to eq(ebook.isbn)
+        expect(json_response["data"]["attributes"]["created_at"].to_date).to eq(ebook.created_at.to_date)
+        expect(json_response["data"]["attributes"]["updated_at"].to_date).to eq(ebook.updated_at.to_date)
       end
     end
 
@@ -46,47 +49,75 @@ RSpec.describe "V1::Ebooks", type: :request do
         get v1_ebook_path(111)
 
         expect(response).to have_http_status :not_found
-        expect(json_response["error"]).to eq("Ebook not found")
+        expect(json_response["errors"][0]["status"]).to eq("404")
+        expect(json_response["errors"][0]["source"]["pointer"]).to eq("/data/id")
+        expect(json_response["errors"][0]["title"]).to eq("Not Found")
+        expect(json_response["errors"][0]["detail"]).to eq("The Ebook requested is not available.")
       end
     end
   end
 
   describe "POST /v1/ebooks" do
-    let(:attributes) do
+    let(:valid_attributes) do
       {
-        ebook: {
-          title: FFaker::Book.title,
-          author: FFaker::Book.author,
-          genre: FFaker::Book.genre,
-          isbn: FFaker::Book.isbn,
-          description: FFaker::Lorem.paragraph
+        data: {
+          type: :ebooks,
+          attributes: {
+            title: FFaker::Book.title,
+            author: FFaker::Book.author,
+            genre: FFaker::Book.genre,
+            isbn: FFaker::Book.isbn,
+            description: FFaker::Lorem.paragraph
+          }
         }
       }
     end
 
-    context "when the ebook can be created" do
+    let(:invalid_attributes) do
+      {
+        data: {
+          type: :ebooks,
+          attributes: {
+            author: FFaker::Book.author,
+            genre: FFaker::Book.genre,
+            isbn: FFaker::Book.isbn,
+            description: FFaker::Lorem.paragraph
+          }
+        }
+      }
+    end
+
+    context "when attributes are valid" do
       it "creates a new ebook" do
-        post v1_ebooks_path, params: attributes
+        post v1_ebooks_path, params: valid_attributes
 
         expect(response).to have_http_status :created
-        expect(json_response["id"]).to be_present
-        expect(json_response["title"]).to be_present
-        expect(json_response["description"]).to be_present
-        expect(json_response["author"]).to be_present
-        expect(json_response["genre"]).to be_present
-        expect(json_response["isbn"]).to be_present
+        expect(json_response["data"]["id"]).to be_present
+        expect(json_response["data"]["type"]).to eq("ebooks")
+        expect(json_response["data"]["attributes"]["title"]).to be_present
+        expect(json_response["data"]["attributes"]["description"]).to be_present
+        expect(json_response["data"]["attributes"]["author"]).to be_present
+        expect(json_response["data"]["attributes"]["genre"]).to be_present
+        expect(json_response["data"]["attributes"]["isbn"]).to be_present
+        expect(json_response["data"]["attributes"]["created_at"]).to be_present
+        expect(json_response["data"]["attributes"]["updated_at"]).to be_present
       end
     end
 
-    context "when the ebook can't be created" do
-      before do
-        allow_any_instance_of(Ebook).to receive(:save).and_return(false)
-      end
-
+    context "when attributes are invalid" do
       it "does not create a new ebook" do
-        post v1_ebooks_path, params: attributes
+        post v1_ebooks_path, params: invalid_attributes
 
         expect(response).to have_http_status :unprocessable_entity
+        expect(json_response["errors"].size).to eq(2)
+        expect(json_response["errors"][0]["status"]).to eq("422")
+        expect(json_response["errors"][0]["source"]["pointer"]).to eq("/data/attributes/title")
+        expect(json_response["errors"][0]["title"]).to eq("Invalid Attribute")
+        expect(json_response["errors"][0]["detail"]).to eq("can't be blank")
+        expect(json_response["errors"][1]["status"]).to eq("422")
+        expect(json_response["errors"][1]["source"]["pointer"]).to eq("/data/attributes/title")
+        expect(json_response["errors"][1]["title"]).to eq("Invalid Attribute")
+        expect(json_response["errors"][1]["detail"]).to eq("is too short (minimum is 5 characters)")
       end
     end
   end
