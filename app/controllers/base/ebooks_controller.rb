@@ -4,24 +4,24 @@ module Base
   class EbooksController < ApplicationController
     def index
       @ebooks = Ebook.all
-      render json: serialize_response(@ebooks)
+      render json: Ebooks::ResponseSerializer.call(self.class.name, @ebooks)
     end
 
     def show
       @ebook = Ebook.find(params[:id])
-      render json: serialize_response(@ebook)
+      render json: Ebooks::ResponseSerializer.call(self.class.name, @ebook)
     rescue ActiveRecord::RecordNotFound
-      render json: not_found_error_serialize, status: :not_found
+      render json: Ebooks::NotFoundErrorSerializer.call, status: :not_found
     end
 
     def create
       @ebook = Ebook.new(ebook_params)
 
       if @ebook.save
-        render json: serialize_response(@ebook),
+        render json: Ebooks::ResponseSerializer.call(self.class.name, @ebook),
                status: :created
       else
-        render json: unprocessable_entity_error_serialize(@ebook.errors), status: :unprocessable_entity
+        render json: Ebooks::ValidationErrorsSerializer.call(@ebook.errors), status: :unprocessable_entity
       end
     end
 
@@ -29,18 +29,6 @@ module Base
 
     def ebook_params
       params.require(:data).require(:attributes).permit(:title, :description, :author, :genre, :isbn)
-    end
-
-    def serialize_response(resource)
-      Ebooks::ResponseSerializer.call(self.class.name, resource)
-    end
-
-    def not_found_error_serialize
-      Ebooks::NotFoundErrorSerializer.call
-    end
-
-    def unprocessable_entity_error_serialize(errors)
-      Ebooks::ValidationErrorsSerializer.call(errors)
     end
   end
 end
