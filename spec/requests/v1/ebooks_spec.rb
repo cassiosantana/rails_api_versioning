@@ -49,7 +49,10 @@ RSpec.describe "V1::Ebooks", type: :request do
         get v1_ebook_path(111)
 
         expect(response).to have_http_status :not_found
-        expect(json_response["error"]).to eq("Ebook not found")
+        expect(json_response["errors"][0]["status"]).to eq("404")
+        expect(json_response["errors"][0]["source"]["pointer"]).to eq("/data/id")
+        expect(json_response["errors"][0]["title"]).to eq("Not Found")
+        expect(json_response["errors"][0]["detail"]).to eq("Ebook not found")
       end
     end
   end
