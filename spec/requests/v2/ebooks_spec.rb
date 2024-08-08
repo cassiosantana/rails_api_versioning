@@ -54,7 +54,7 @@ RSpec.describe "V2::Ebooks", type: :request do
         expect(json_response["errors"][0]["status"]).to eq("404")
         expect(json_response["errors"][0]["source"]["pointer"]).to eq("/data/id")
         expect(json_response["errors"][0]["title"]).to eq("Not Found")
-        expect(json_response["errors"][0]["detail"]).to eq("Ebook not found")
+        expect(json_response["errors"][0]["detail"]).to eq("The Ebook requested is not available.")
       end
     end
   end
