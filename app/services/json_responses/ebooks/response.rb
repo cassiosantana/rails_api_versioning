@@ -22,6 +22,8 @@ module JsonResponses
           V1::EbooksSerializer
         when "V2::EbooksController"
           V2::EbooksSerializer
+        when "V3::EbooksController"
+          V3::EbooksSerializer
         else
           raise "Serializer not found for controller_name: #{@controller_name}"
         end
