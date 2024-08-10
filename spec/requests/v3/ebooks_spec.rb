@@ -4,7 +4,7 @@ require "rails_helper"
 
 RSpec.describe "V3::Ebooks", type: :request do
   let!(:ebooks) do
-    10.times.map do
+    15.times.map do
       Ebook.create!(
         title: FFaker::Book.title,
         author: FFaker::Book.author,
@@ -18,10 +18,26 @@ RSpec.describe "V3::Ebooks", type: :request do
 
   describe "GET /v3/ebooks" do
     it "returns the correctly paginated list of ebooks" do
-      get v3_ebooks_path
+      get v3_ebooks_path, params: { page: 2 }
 
       expect(response).to have_http_status(:ok)
       expect(json_response["data"].size).to eq(5)
+      expect(json_response["meta"]).to include(
+        "pagination" => hash_including(
+          "current_page" => 2,
+          "next_page" => 3,
+          "prev_page" => 1,
+          "total_pages" => 3,
+          "total_count" => 15
+        )
+      )
+      expect(json_response["links"]).to include(
+        "self" => { "href" => "http://www.example.com/v3/ebooks?page=2" },
+        "first" => { "href" => "http://www.example.com/v3/ebooks?page=1" },
+        "last" => { "href" => "http://www.example.com/v3/ebooks?page=3" },
+        "next" => { "href" => "http://www.example.com/v3/ebooks?page=3" },
+        "prev" => { "href" => "http://www.example.com/v3/ebooks?page=1" }
+      )
     end
   end
 
