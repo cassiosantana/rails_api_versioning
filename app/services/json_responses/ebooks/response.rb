@@ -11,7 +11,7 @@ module JsonResponses
 
       def call
         serializer = select_serializer
-        serializer.new(@resource).serializable_hash.to_json
+        serializer.new(@resource).serializable_hash
       end
 
       private

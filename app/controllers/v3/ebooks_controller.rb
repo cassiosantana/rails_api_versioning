@@ -4,7 +4,16 @@ module V3
   class EbooksController < Base::EbooksController
     def index
       @ebooks = Ebook.page(params[:page]).per(5)
-      render json: JsonResponses::Ebooks::Response.call(self.class.name, @ebooks)
+
+      ebooks = JsonResponses::Ebooks::Response.call(self.class.name, @ebooks)
+      pagination = JsonResponses::Pagination.call(@ebooks)
+      links = JsonResponses::Links.call(@ebooks, request)
+
+      render json: {
+        data: ebooks[:data],
+        meta: pagination,
+        links:
+      }
     end
 
     private
