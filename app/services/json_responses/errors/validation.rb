@@ -2,7 +2,7 @@
 
 module JsonResponses
   module Errors
-    class Validation < BaseService
+    class Validation < ApplicationService
       def initialize(errors)
         @errors = errors
         super

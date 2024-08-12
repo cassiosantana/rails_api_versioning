@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module JsonResponses
-  class Pagination < BaseService
+  class Pagination < ApplicationService
     def initialize(resource)
       @resource = resource
       super

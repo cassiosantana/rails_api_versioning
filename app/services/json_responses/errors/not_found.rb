@@ -2,9 +2,9 @@
 
 module JsonResponses
   module Errors
-    class NotFound < BaseService
-      def initialize(resource_name)
-        @resource_name = resource_name
+    class NotFound < ApplicationService
+      def initialize(exeption)
+        @exeption = exeption
         super
       end
 
@@ -13,9 +13,9 @@ module JsonResponses
           errors: [
             {
               status: "404",
-              source: { pointer: "/data/id" },
+              source: { pointer: "/data/#{@exeption.primary_key}" },
               title: "Not Found",
-              detail: "The #{@resource_name} requested is not available."
+              detail: @exeption.message
             }
           ]
         }

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module JsonResponses
-  class Links < BaseService
+  class Links < ApplicationService
     def initialize(resource, request)
       @resource = resource
       @request = request
