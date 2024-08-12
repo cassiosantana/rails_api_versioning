@@ -15,16 +15,13 @@ module V3
     def show
       @ebook = Ebook.find(params[:id])
       render json: V3::EbooksSerializer.new(@ebook).serializable_hash
-    rescue ActiveRecord::RecordNotFound
-      render json: JsonResponses::Errors::NotFound.call(Ebook.name), status: :not_found
     end
 
     def create
       @ebook = Ebook.new(ebook_params)
 
       if @ebook.save
-        render json: V3::EbooksSerializer.new(@ebook).serializable_hash,
-               status: :created
+        render json: V3::EbooksSerializer.new(@ebook).serializable_hash, status: :created
       else
         render json: JsonResponses::Errors::Validation.call(@ebook.errors), status: :unprocessable_entity
       end

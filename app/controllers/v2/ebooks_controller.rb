@@ -10,8 +10,6 @@ module V2
     def show
       @ebook = Ebook.find(params[:id])
       render json: V2::EbooksSerializer.new(@ebook).serializable_hash
-    rescue ActiveRecord::RecordNotFound
-      render json: JsonResponses::Errors::NotFound.call(Ebook.name), status: :not_found
     end
 
     def create
