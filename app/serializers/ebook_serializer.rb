@@ -2,5 +2,5 @@
 
 class EbookSerializer
   include JSONAPI::Serializer
-  attributes :title, :description, :author, :genre, :isbn, :created_at, :updated_at
+  attributes :title, :description, :author, :genre, :isbn13, :created_at, :updated_at
 end
