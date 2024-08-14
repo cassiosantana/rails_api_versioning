@@ -9,7 +9,7 @@ Ebook.destroy_all
     title: FFaker::Book.title,
     author: FFaker::Book.author,
     genre: FFaker::Book.genre,
-    isbn: FFaker::Book.isbn,
+    isbn13: FFaker::Book.isbn,
     description: FFaker::Lorem.paragraph
   )
 end
