@@ -63,7 +63,7 @@ RSpec.describe "V2::Ebooks", type: :request do
             "status" => "404",
             "source" => { "pointer" => "/data/id" },
             "title" => "Not Found",
-            "detail" => "The Ebook requested is not available."
+            "detail" => "Couldn't find Ebook with 'id'=111"
           )
         )
       end
