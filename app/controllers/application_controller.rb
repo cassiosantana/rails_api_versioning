@@ -7,12 +7,16 @@ class ApplicationController < ActionController::API
   private
 
   def map_isbn_to_isbn13
-    return unless params[:data][:attributes][:isbn].present?
+    return unless isbn_present?
 
-    params[:data][:attributes][:isbn13] = params[:data][:attributes].delete(:isbn)
+    Ebooks::IsbnToIsbn13Mapper.call(params)
   end
 
   def not_found(exception)
     render json: JsonResponses::Errors::NotFound.call(exception), status: :not_found
+  end
+
+  def isbn_present?
+    params.dig(:data, :attributes, :isbn).present?
   end
 end
