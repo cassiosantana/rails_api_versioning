@@ -9,7 +9,7 @@ RSpec.describe "V1::Ebooks", type: :request do
         title: FFaker::Book.title,
         author: FFaker::Book.author,
         genre: FFaker::Book.genre,
-        isbn: FFaker::Book.isbn,
+        isbn13: FFaker::Book.isbn,
         description: FFaker::Lorem.paragraph
       )
     end
@@ -40,7 +40,7 @@ RSpec.describe "V1::Ebooks", type: :request do
             "author" => ebook.author,
             "description" => ebook.description,
             "genre" => ebook.genre,
-            "isbn" => ebook.isbn,
+            "isbn" => ebook.isbn13,
             "created_at" => be_present,
             "updated_at" => be_present
           )

@@ -30,7 +30,7 @@ module V3
     private
 
     def ebook_params
-      params.require(:data).require(:attributes).permit(:title, :description, :author, :genre, :isbn, :publisher)
+      params.require(:data).require(:attributes).permit(:title, :description, :author, :genre, :isbn13, :publisher)
     end
   end
 end

@@ -9,7 +9,7 @@ RSpec.describe "V3::Ebooks", type: :request do
         title: FFaker::Book.title,
         author: FFaker::Book.author,
         genre: FFaker::Book.genre,
-        isbn: FFaker::Book.isbn,
+        isbn13: FFaker::Book.isbn,
         description: FFaker::Lorem.paragraph,
         publisher: FFaker::Company.name
       )
@@ -57,7 +57,7 @@ RSpec.describe "V3::Ebooks", type: :request do
             "author" => ebook.author,
             "description" => ebook.description,
             "genre" => ebook.genre,
-            "isbn" => ebook.isbn,
+            "isbn13" => ebook.isbn13,
             "publisher" => ebook.publisher,
             "created_at" => be_present,
             "updated_at" => be_present
@@ -95,7 +95,7 @@ RSpec.describe "V3::Ebooks", type: :request do
             title: FFaker::Book.title,
             author: FFaker::Book.author,
             genre: FFaker::Book.genre,
-            isbn: FFaker::Book.isbn,
+            isbn13: FFaker::Book.isbn,
             description: FFaker::Lorem.paragraph,
             publisher: FFaker::Company.name
           }
@@ -110,7 +110,7 @@ RSpec.describe "V3::Ebooks", type: :request do
           attributes: {
             author: FFaker::Book.author,
             genre: FFaker::Book.genre,
-            isbn: FFaker::Book.isbn,
+            isbn13: FFaker::Book.isbn,
             description: FFaker::Lorem.paragraph,
             publisher: FFaker::Company.name
           }
@@ -131,7 +131,7 @@ RSpec.describe "V3::Ebooks", type: :request do
             "description" => be_present,
             "author" => be_present,
             "genre" => be_present,
-            "isbn" => be_present,
+            "isbn13" => be_present,
             "publisher" => be_present,
             "created_at" => be_present,
             "updated_at" => be_present

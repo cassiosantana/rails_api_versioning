@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 module V3
-  class EbooksSerializer < EbookSerializer
+  class EbooksSerializer
     include JSONAPI::Serializer
-    attributes :publisher
+
+    attributes :title, :description, :author, :genre, :publisher, :isbn13, :created_at, :updated_at
   end
 end
