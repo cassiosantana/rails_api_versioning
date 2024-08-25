@@ -14,7 +14,7 @@ A API segue um esquema de versão para garantir compatibilidade e evolução. En
 
 Esta seção aborda os endpoints principais da sua API e seus métodos correspondentes (verbos HTTP):
 
-* **GET /v3/ebooks?page=2:** Recupera uma lista paginada de eBooks. A resposta inclui metadados, informações de paginação e links para a próxima ou página anterior.
+* **GET /v3/ebooks?page=2:** Recupera uma lista paginada de eBooks. A resposta inclui metadados, informações de paginação e links.
     ```json 
         {
           "data": [
@@ -85,7 +85,7 @@ Esta seção aborda os endpoints principais da sua API e seus métodos correspon
         }
     ```
 
-* **POST /v3/ebooks:** Cria um novo eBook. A requisição inclui os dados para o eBook a ser adicionado. Este endpoint exige autorização para qualquer alteração.
+* **POST /v3/ebooks:** Cria um novo eBook. A requisição inclui os dados para o eBook a ser adicionado.
 
     **Requisição:**
     ```json
