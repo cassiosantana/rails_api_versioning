@@ -9,7 +9,7 @@ RSpec.describe "V2::Ebooks", type: :request do
         title: FFaker::Book.title,
         author: FFaker::Book.author,
         genre: FFaker::Book.genre,
-        isbn: FFaker::Book.isbn,
+        isbn13: FFaker::Book.isbn,
         description: FFaker::Lorem.paragraph,
         publisher: FFaker::Company.name
       )
@@ -41,7 +41,7 @@ RSpec.describe "V2::Ebooks", type: :request do
             "author" => ebook.author,
             "description" => ebook.description,
             "genre" => ebook.genre,
-            "isbn" => ebook.isbn,
+            "isbn" => ebook.isbn13,
             "publisher" => ebook.publisher,
             "created_at" => be_present,
             "updated_at" => be_present
@@ -63,7 +63,7 @@ RSpec.describe "V2::Ebooks", type: :request do
             "status" => "404",
             "source" => { "pointer" => "/data/id" },
             "title" => "Not Found",
-            "detail" => "The Ebook requested is not available."
+            "detail" => "Couldn't find Ebook with 'id'=111"
           )
         )
       end

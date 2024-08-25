@@ -2,34 +2,51 @@
 
 require "rails_helper"
 
-RSpec.describe "V1::Ebooks", type: :request do
-  before do
-    3.times.map do
+RSpec.describe "V3::Ebooks", type: :request do
+  let!(:ebooks) do
+    15.times.map do
       Ebook.create!(
         title: FFaker::Book.title,
         author: FFaker::Book.author,
         genre: FFaker::Book.genre,
         isbn13: FFaker::Book.isbn,
-        description: FFaker::Lorem.paragraph
+        description: FFaker::Lorem.paragraph,
+        publisher: FFaker::Company.name
       )
     end
   end
 
-  describe "GET /v1/ebooks" do
-    it "returns a list of ebooks correctly" do
-      get v1_ebooks_path
+  describe "GET /v3/ebooks" do
+    it "returns the correctly paginated list of ebooks" do
+      get v3_ebooks_path, params: { page: 2 }
 
       expect(response).to have_http_status(:ok)
-      expect(json_response["data"].size).to eq(3)
+      expect(json_response["data"].size).to eq(5)
+      expect(json_response["meta"]).to include(
+        "pagination" => hash_including(
+          "current_page" => 2,
+          "next_page" => 3,
+          "prev_page" => 1,
+          "total_pages" => 3,
+          "total_count" => 15
+        )
+      )
+      expect(json_response["links"]).to include(
+        "self" => { "href" => "http://www.example.com/v3/ebooks?page=2" },
+        "first" => { "href" => "http://www.example.com/v3/ebooks?page=1" },
+        "last" => { "href" => "http://www.example.com/v3/ebooks?page=3" },
+        "next" => { "href" => "http://www.example.com/v3/ebooks?page=3" },
+        "prev" => { "href" => "http://www.example.com/v3/ebooks?page=1" }
+      )
     end
   end
 
-  describe "GET /v1/ebooks/:id" do
+  describe "GET /v3/ebooks/:id" do
     context "when ebook exists" do
       let(:ebook) { Ebook.first }
 
       it "returns a ebook correctly" do
-        get v1_ebook_path(ebook)
+        get v3_ebook_path(ebook)
 
         expect(response).to have_http_status :ok
         expect(json_response["data"]).to include(
@@ -40,7 +57,8 @@ RSpec.describe "V1::Ebooks", type: :request do
             "author" => ebook.author,
             "description" => ebook.description,
             "genre" => ebook.genre,
-            "isbn" => ebook.isbn13,
+            "isbn13" => ebook.isbn13,
+            "publisher" => ebook.publisher,
             "created_at" => be_present,
             "updated_at" => be_present
           )
@@ -52,9 +70,9 @@ RSpec.describe "V1::Ebooks", type: :request do
 
     context "when the ebook does not exist" do
       it "show error message" do
-        get v1_ebook_path(111)
+        get v3_ebook_path(111)
 
-        expect(response).to have_http_status(:not_found)
+        expect(response).to have_http_status :not_found
 
         expect(json_response["errors"]).to include(
           hash_including(
@@ -68,7 +86,7 @@ RSpec.describe "V1::Ebooks", type: :request do
     end
   end
 
-  describe "POST /v1/ebooks" do
+  describe "POST /v3/ebooks" do
     let(:valid_attributes) do
       {
         data: {
@@ -77,8 +95,9 @@ RSpec.describe "V1::Ebooks", type: :request do
             title: FFaker::Book.title,
             author: FFaker::Book.author,
             genre: FFaker::Book.genre,
-            isbn: FFaker::Book.isbn,
-            description: FFaker::Lorem.paragraph
+            isbn13: FFaker::Book.isbn,
+            description: FFaker::Lorem.paragraph,
+            publisher: FFaker::Company.name
           }
         }
       }
@@ -91,8 +110,9 @@ RSpec.describe "V1::Ebooks", type: :request do
           attributes: {
             author: FFaker::Book.author,
             genre: FFaker::Book.genre,
-            isbn: FFaker::Book.isbn,
-            description: FFaker::Lorem.paragraph
+            isbn13: FFaker::Book.isbn,
+            description: FFaker::Lorem.paragraph,
+            publisher: FFaker::Company.name
           }
         }
       }
@@ -100,7 +120,7 @@ RSpec.describe "V1::Ebooks", type: :request do
 
     context "when attributes are valid" do
       it "creates a new ebook" do
-        post v1_ebooks_path, params: valid_attributes
+        post v3_ebooks_path, params: valid_attributes
 
         expect(response).to have_http_status :created
         expect(json_response["data"]).to include(
@@ -111,7 +131,8 @@ RSpec.describe "V1::Ebooks", type: :request do
             "description" => be_present,
             "author" => be_present,
             "genre" => be_present,
-            "isbn" => be_present,
+            "isbn13" => be_present,
+            "publisher" => be_present,
             "created_at" => be_present,
             "updated_at" => be_present
           )
@@ -121,9 +142,9 @@ RSpec.describe "V1::Ebooks", type: :request do
 
     context "when attributes are invalid" do
       it "does not create a new ebook" do
-        post v1_ebooks_path, params: invalid_attributes
+        post v3_ebooks_path, params: invalid_attributes
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status :unprocessable_entity
         expect(json_response["errors"].size).to eq(2)
         expect(json_response["errors"]).to include(
           hash_including(

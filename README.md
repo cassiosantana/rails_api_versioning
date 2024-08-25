@@ -1,152 +1,134 @@
-# REST API versioning
-> "APIs only need to be up-versioned when a breaking change is made."
+## API REST v3
 
-Fonte: [RestfulAPI](https://restfulapi.net/versioning/)
+**Bem-vindo à documentação da API do seu aplicativo.** Este guia fornece uma visão detalhada sobre nossa API RESTful, com foco em exemplos claros. O objetivo é capacitar desenvolvedores a integrar essa ferramenta de forma eficaz em seus aplicativos.
 
-## Visão Geral
-Alterar o número da versão de uma API deve ser o resultado de necessidades drásticas. Adicionar endpoints ou novos parâmetros
-não devem ser o motivo de alteração de numero de versão, mas é valido e útil rastrear versões para dar suporte a clientes
-que estejam enfrentando problemas de API.
+**1. Introdução:**
 
-Apesar da indicação ser explícita quanto a necessidade do versionamento de APIs o objetivo aqui é simular a necessidade 
-de mudanças sem quebrar clientes existentes, permitindo a coexistência de múltiplas versões da API.
+Esta API fornece acesso a dados e comunicação para funcionalidades como listagem de ebooks podendo ser paginada, exibir e criar novos registros de ebooks.
 
-### Serialização
+**2. Política de Versões:**
 
-A serialização das respostas é gerenciada por um serviço específico. As respostas seguem o formato JSON API, garantindo que os dados estejam estruturados corretamente com os seguintes campos:
+A API segue um esquema de versão para garantir compatibilidade e evolução. Enquanto encorajamos o uso da versão mais recente, a compatibilidade com versões anteriores é mantida.
 
-- **id:** Identificador do recurso
-- **type:** Tipo do recurso
-- **attributes:** Atributos do recurso , incluindo `title`, `description`, `author`, `genre`, `isbn`, `created_at`, `updated_at` e, na versão 2, `publisher`.
+**3. Endpoints e Métodos HTTP:**
 
-**Exemplo de Formato JSON API:**
+Esta seção aborda os endpoints principais da sua API e seus métodos correspondentes (verbos HTTP):
 
-```json
-{
-  "data": [
-    {
-      "type": "articles",
-      "id": "1",
-      "attributes": {
-        "title": "JSON:API paints my bikeshed!",
-        "body": "The shortest article. Ever.",
-        "created": "2015-05-22T14:56:29.000Z",
-        "updated": "2015-05-22T14:56:28.000Z"
-      },
-      "relationships": {
-        "author": {
+* **GET /v3/ebooks?page=2:** Recupera uma lista paginada de eBooks. A resposta inclui metadados, informações de paginação e links.
+    ```json 
+        {
+          "data": [
+            {
+              "id": "6",
+              "type": "ebooks",
+              "attributes": {
+                "title": "Champagne Tentacle",
+                "description": "Repudiandae nisi et ipsum ullam sequi modi ex laborum. Dignissimos minus deserunt saepe expedita itaque quia reprehenderit. Adipisci neque doloremque architecto illo quos soluta incidunt. Excepturi molestias officiis dolorem id.",
+                "author": "Viola Parisian",
+                "genre": "Hymn",
+                "publisher": "Schowalter Group",
+                "isbn13": "14182503727",
+                "created_at": "2024-08-25T17:44:51.474Z",
+                "updated_at": "2024-08-25T17:44:51.474Z"
+              }
+            },
+            ...
+          ],
+          "meta": {
+            "pagination": {
+                "current_page": 2,
+                "next_page": 3,
+                "prev_page": 1,
+                "total_pages": 3,
+                "total_count": 15
+            }
+          },
+          "links": {
+            "self": {
+                "href": "http://localhost:3000/v3/ebooks?page=2"
+            },
+            "next": {
+                "href": "http://localhost:3000/v3/ebooks?page=3"
+            },
+            "prev": {
+                "href": "http://localhost:3000/v3/ebooks?page=1"
+            },
+            "first": {
+                "href": "http://localhost:3000/v3/ebooks?page=1"
+            },
+            "last": {
+                "href": "http://localhost:3000/v3/ebooks?page=3"
+            }
+          }
+        } 
+    ```
+
+
+* **GET /v3/ebooks/{id}:** Recupera os detalhes de um eBook específico. A resposta inclui os atributos do eBook.
+
+    ```json
+        {
           "data": {
-            "id": "42",
-            "type": "people"
+            "id": "1",
+            "type": "ebooks",
+              "attributes": {
+              "title": "Codename: Nuclear Pickpocket",
+              "description": "Ad odio expedita alias quia quisquam inventore eligendi. Voluptatum magnam quo totam sapiente. Mollitia similique vero accusantium rerum eius.",
+              "author": "Vicky Johnson",
+              "genre": "Romantic comedy",
+              "publisher": "Schowalter Group",
+              "isbn13": "22235593149",
+              "created_at": "2024-08-25T18:36:04.375Z",
+              "updated_at": "2024-08-25T18:36:04.375Z"
+            }
           }
         }
-      }
-    }
-  ],
-  "included": [
-    {
-      "type": "people",
-      "id": "42",
-      "attributes": {
-        "name": "John",
-        "age": 80,
-        "gender": "male"
-      }
-    }
-  ]
-}
+    ```
 
-```
+* **POST /v3/ebooks:** Cria um novo eBook. A requisição inclui os dados para o eBook a ser adicionado.
 
-### Fonte
+    **Requisição:**
+    ```json
+        {
+          "data": {
+            "type": "ebooks",
+            "attributes": {
+              "title": "O Segredo da Lua",
+              "author": "Cassio Santana",
+              "genre": "Ação",
+              "isbn": "978-3-16-148410-0",
+              "description": "Em um futuro distante, a humanidade busca respostas nas profundezas do cosmos. A jovem astrônoma, Anya, descobre um antigo artefato que pode mudar o destino da galáxia.",
+              "publisher": "World Publishing"
+            }
+          }
+        } 
+    ```
 
-O JSON exibido acima foi retirado do [JSON:API](https://jsonapi.org/examples/#sparse-fieldsets), um padrão para APIs JSON.
+    **Resposta:**
+    ```json
+        {
+          "data": {
+            "id": "28",
+            "type": "ebooks",
+            "attributes": {
+              "title": "O Segredo da Lua",
+              "description": "Em um futuro distante, a humanidade busca respostas nas profundezas do cosmos. A jovem astrônoma, Anya, descobre um antigo artefato que pode mudar o destino da galáxia.",
+              "author": "Cassio Santana",
+              "genre": "Ação",
+              "isbn": "978-3-16-148410-0",
+              "publisher": "World Publishing",
+              "created_at": "2024-08-08T14:08:41.024Z",
+              "updated_at": "2024-08-08T14:08:41.024Z"
+            }
+          }
+        }
+    ```
 
-### Versão 1 (v1)
-Na versão 1 da API, a entidade eBook possui os seguintes atributos:
-- **title:** Título do eBook
-- **description:** Descrição do eBook
-- **author:** Autor do eBook
-- **genre:** Gênero do eBook
-- **isbn:** Código ISBN do eBook
-- **created_at:** Data de criação do registro
-- **updated_at:** Data de atualização do registro
+**4. Tratamento de Erros:**
 
-### Versão 2 (v2)
-Para atender à necessidade de incluir o atributo `publisher` nos eBooks, foi criada a versão 2 da API. 
-Os clientes da versão anterior não necessitam desse novo atributo e precisam continuar utilizando a versão antiga sem 
-qualquer alteração nas respostas.
+A API retorna respostas em JSON contendo códigos de erro e mensagens detalhadas para cenários comuns:
 
-Assim, existe uma pequena diferença na versão 2 que é apenas incluir este atributo nas respostas e requisições para 
-criação de novos registros:
-
-### Exemplos de Requisições e Respostas
-
-**GET /v2/ebooks/1**
-
-Resposta:
-```json
-{
-  "data": {
-    "id": "1",
-    "type": "ebooks",
-    "attributes": {
-      "title": "O Segredo da Lua",
-      "description": "Em um futuro distante, a humanidade busca respostas nas profundezas do cosmos. A jovem astrônoma, Anya, descobre um antigo artefato que pode mudar o destino da galáxia.",
-      "author": "Cassio Santana",
-      "genre": "Ação",
-      "isbn": "978-3-16-148410-0",
-      "publisher": "World Publishing",
-      "created_at": "2024-08-08T14:07:49.671Z",
-      "updated_at": "2024-08-08T14:07:49.671Z"
-    }
-  }
-}
-```
-
-**POST /v2/ebooks**
-
-Requisição:
-```json
-{
-  "data": {
-    "type": "ebooks",
-    "attributes": {
-      "title": "O Segredo da Lua",
-      "author": "Cassio Santana",
-      "genre": "Ação",
-      "isbn": "978-3-16-148410-0",
-      "description": "Em um futuro distante, a humanidade busca respostas nas profundezas do cosmos. A jovem astrônoma, Anya, descobre um antigo artefato que pode mudar o destino da galáxia.",
-      "publisher": "World Publishing"
-    }
-  }
-} 
-```
-
-Resposta:
-```json
-{
-  "data": {
-    "id": "28",
-    "type": "ebooks",
-    "attributes": {
-      "title": "O Segredo da Lua",
-      "description": "Em um futuro distante, a humanidade busca respostas nas profundezas do cosmos. A jovem astrônoma, Anya, descobre um antigo artefato que pode mudar o destino da galáxia.",
-      "author": "Cassio Santana",
-      "genre": "Ação",
-      "isbn": "978-3-16-148410-0",
-      "publisher": "World Publishing",
-      "created_at": "2024-08-08T14:08:41.024Z",
-      "updated_at": "2024-08-08T14:08:41.024Z"
-    }
-  }
-}
-```
-
-### Exemplo de erros
-
-**404 - Not Found**
-
+**404 - Not Found:**
 ```json
 {
   "errors": [
@@ -162,7 +144,7 @@ Resposta:
 }
 ```
 
-**422 - Unprocessable entity**
+**422 - Unprocessable entity:**
 
 ```json
 {
@@ -194,3 +176,11 @@ Resposta:
   ]
 }
 ```
+
+**4. Autenticação:**
+
+Próxima Feature: Autenticação será nossa próxima implementação.
+
+**5. Recursos Adicionais:**
+
+Para obter mais informações sobre a API, consulte o [Wiki do GitHub](#).
